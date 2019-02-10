@@ -7,13 +7,38 @@ const eventsURL = "https://project3-assets-overlord.herokuapp.com/epc-events"
 const productsURL = "https://project3-assets-overlord.herokuapp.com/api/products"
 
 // Number of Tags to be Simulated
-const amountOfTags = 500;
+const amountOfTags = 10;
 
 // Time Interval of Moving Products
-const timeInterval = 10 * 1000;
+const timeInterval = 5 * 1000;
 
 // The Speed of Moving elements: higher value Slow, lower value Fast
 const speedFactor = 8;
+
+// Reader Data Pending to Implement
+// reader1 = {
+//   name: "Entry 1",
+//   mac: "AB:12:CD:34:EF:56",
+//   ip: "192.168.0.1",
+//   firmware: "2.3.3",
+//   antenna_port: "1",
+//   brand: "Impinj",
+//   model: "Speedway",
+//   location: "Warehouse A",
+//   notes: "Antenna is mounted on top of the door.",
+// };
+
+// reader2 = {
+//   name: "Exit 1",
+//   mac: "ZX:34:FD:54:PL:87",
+//   ip: "192.168.0.2",
+//   firmware: "2.3.3",
+//   antenna_port: "1",
+//   brand: "Impinj",
+//   model: "Speedway",
+//   location: "Warehouse B",
+//   notes: "Antenna is mounted beside the door.",
+// };
 
 // Adrian Will Provide Actual EPCs
 const epcs = [
@@ -189,7 +214,8 @@ const inExitPort = [];
 deleteEvents();
 // Delete Stored Products in the Server
 deleteProducts();
-
+// Populate Products
+populateProducts();
 
 logArrays(false);
 
