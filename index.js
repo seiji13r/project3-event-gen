@@ -215,7 +215,7 @@ deleteEvents();
 // Delete Stored Products in the Server
 deleteProducts();
 // Populate Products
-populateProducts();
+populateProducts(products);
 
 logArrays(false);
 
