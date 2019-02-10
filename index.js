@@ -3,7 +3,23 @@ const axios = require("axios")
 uuidv4(); // ⇨ '10ba038e-48da-487b-96e8-8d3b99b6d18a'
 // E2801160600002073A3024E1
 
-const epcs = [];
+const eventsURL = "https://project3-assets-overlord.herokuapp.com/epc-events" 
+const productsURL = "https://project3-assets-overlord.herokuapp.com/api/products"
+
+// Number of Tags to be Simulated
+const amountOfTags = 500;
+
+// Time Interval of Moving Products
+const timeInterval = 10 * 1000;
+
+// The Speed of Moving elements: higher value Slow, lower value Fast
+const speedFactor = 8;
+
+// Adrian Will Provide Actual EPCs
+const epcs = [
+  "AAAA",
+  "BBBB"
+];
 const events = [];
 const products = [];
 
@@ -70,16 +86,16 @@ const productsInfo = [
   }
 ]
 
-const cardNumber = 2000;
 
-for (let i = 0; i < cardNumber; i+=1){
+for (let i = 0; i < amountOfTags; i+=1){
   let event;
+  let epc;
 
-  const epc = uuidv4().replace(/-/g, "").toUpperCase().slice(-24);
+  epc = uuidv4().replace(/-/g, "").toUpperCase().slice(-24);
 
   event = {
     "epc": epc,
-    "antenna_port": "1",
+    "antenna_port": null,
     "event_time": new Date()
   }
 
@@ -87,6 +103,7 @@ for (let i = 0; i < cardNumber; i+=1){
   epcs.push(epc)
 }
 
+// Assign A Product to Each EPC
 epcs.forEach(epc => {
   let product = {}
   let randProduct = productsInfo[Math.floor(Math.random()*productsInfo.length)]
@@ -97,21 +114,118 @@ epcs.forEach(epc => {
 });
 
 
-console.log(events);
-console.log(epcs);
+// console.log(events);
+// console.log(epcs);
+const deleteProducts = () => {
+  console.log(productsURL);
+}
 
-// const eventsURL = "https://seiji-recordjson.herokuapp.com/" 
-// const productsURL = "https://project3-assets-overlord.herokuapp.com/api/products/" 
-
-products.forEach(product=>{
-  axios.post(productsURL, product)
-    .then(response => response)
-    .catch(error => console.log(error))
-})
-
-
-axios.post(eventsURL, events)
-  .then(response => {
-    console.log(response);
+const populateProducts = (products) => {
+  products.forEach(product=>{
+    axios.post(productsURL, product)
+      .then(response => response)
+      .catch(error => console.log(error))
   })
-  .catch(error => console.log(error));
+}
+
+const deleteEvents = () => {
+  axios.get(`${eventsURL}/delete`)
+    .then(response => {
+      // console.log(response);
+      console.log("Delete Events Status Code: ", response.status);
+    })
+    .catch(error => console.log(error));
+}
+
+const postEvents = (events) => {
+  axios.post(eventsURL, events)
+    .then(response => {
+      // console.log(response);
+      console.log("Post Array Status Code: ", response.status);
+    })
+    .catch(error => console.log(error));
+}
+
+const changeAntenna = (eventArray, antenna) => {
+  eventArray.forEach(event => {
+    event["antenna_port"] = antenna;
+    event["event_time"] = new Date();
+  });
+}
+
+
+// This Function Moves a Random number of Elements, randomly selected from one Array to the Other
+const moveObjects = (arrOrigin, arrTarget) => {
+  const numToBeMoved = Math.floor(Math.random() * arrOrigin.length / speedFactor + 1);
+  // console.log("Number of Elements to be Moved", numToBeMoved);
+
+  for(let i = 0; i < numToBeMoved; i+=1){
+    const randPosistion = Math.floor(Math.random()*arrOrigin.length);
+    // console.log("New Array Length", arrOrigin.length);
+    // console.log("Random Postiion", randPosistion);
+    let elementToMove = arrOrigin.splice(randPosistion, 1)[0];
+    arrTarget.push(elementToMove);
+  }
+}
+
+const logArrays = (verbose = false) => {
+  if(verbose){
+    console.log("\n\n\n");
+    console.log("**********************OUTSIDE_TAGS******************", events.length, "\n", events);
+    console.log("**********************ENTRY_PORT********************", inEntryPort.length, "\n", inEntryPort);
+    console.log("**********************EXIT_PORT*********************", inExitPort.length, "\n", inExitPort);
+  } else {
+    console.log("\n");
+    console.log("**********************OUTSIDE_TAGS******************", events.length);
+    console.log("**********************ENTRY_PORT********************", inEntryPort.length);
+    console.log("**********************EXIT_PORT*********************", inExitPort.length);
+  }
+}
+
+const inEntryPort = [];
+const inExitPort = [];
+
+// Delete Stored Events in the Server
+deleteEvents();
+// Delete Stored Products in the Server
+deleteProducts();
+
+
+logArrays(false);
+
+setInterval(function() {
+
+  if(inEntryPort.length!==0){
+    moveObjects(inEntryPort, inExitPort);
+  }
+
+  if(events.length!==0){
+    moveObjects(events, inEntryPort);
+  }
+
+  if(inEntryPort.length!==0){
+    // Update the Antenna Port
+    changeAntenna(inEntryPort, "1");
+    // Send event Array to the Endpoint
+    postEvents(inEntryPort);
+  } else {
+    console.log("[inEntryPort] Array is Empty");
+  }
+
+  if(inExitPort.length!==0){
+    // Update the Antenna Port
+    changeAntenna(inExitPort, "2");
+    // Send event Array to the Endpoint
+    postEvents(inExitPort);
+  } else {
+    console.log("[inExitPort] Array is Empty");
+  }
+
+  // Stop When All Elements are in ExitPort
+  if(inEntryPort.length===0 && events.length===0){
+    clearInterval(this);
+  }
+
+  logArrays(false);
+}, timeInterval)
+
