@@ -3,42 +3,51 @@ const axios = require("axios")
 uuidv4(); // ⇨ '10ba038e-48da-487b-96e8-8d3b99b6d18a'
 // E2801160600002073A3024E1
 
-const eventsURL = "https://project3-assets-overlord.herokuapp.com/epc-events" 
-const productsURL = "https://project3-assets-overlord.herokuapp.com/api/products"
+const production = false;
+
+const eventsURL = "http://localhost:3001/epc-events" 
+const productsURL = "http://localhost:3001/api/products"
+const readersURL = "http://localhost:3001/api/readers"
+
+if (production) {
+  eventsURL = "https://project3-assets-overlord.herokuapp.com/epc-events" 
+  productsURL = "https://project3-assets-overlord.herokuapp.com/api/products"
+  readersURL = "https://project3-assets-overlord.herokuapp.com/api/readers"
+}
 
 // Number of Tags to be Simulated
-const amountOfTags = 10;
+const amountOfTags = 40;
 
-// Time Interval of Moving Products
+// Time Interval of Moving Products in milliseconds
 const timeInterval = 5 * 1000;
 
 // The Speed of Moving elements: higher value Slow, lower value Fast
 const speedFactor = 8;
 
-// Reader Data Pending to Implement
-// reader1 = {
-//   name: "Entry 1",
-//   mac: "AB:12:CD:34:EF:56",
-//   ip: "192.168.0.1",
-//   firmware: "2.3.3",
-//   antenna_port: "1",
-//   brand: "Impinj",
-//   model: "Speedway",
-//   location: "Warehouse A",
-//   notes: "Antenna is mounted on top of the door.",
-// };
-
-// reader2 = {
-//   name: "Exit 1",
-//   mac: "ZX:34:FD:54:PL:87",
-//   ip: "192.168.0.2",
-//   firmware: "2.3.3",
-//   antenna_port: "1",
-//   brand: "Impinj",
-//   model: "Speedway",
-//   location: "Warehouse B",
-//   notes: "Antenna is mounted beside the door.",
-// };
+readers = [
+  {
+    name: "Entry 1",
+    mac: "AB:12:CD:34:EF:56",
+    ip: "192.168.0.1",
+    firmware: "2.3.3",
+    antenna_port: "1",
+    brand: "Impinj",
+    model: "Speedway",
+    location: "Warehouse A",
+    notes: "Antenna is mounted on top of the door.",
+  },
+  {
+    name: "Exit 1",
+    mac: "ZX:34:FD:54:PL:87",
+    ip: "192.168.0.2",
+    firmware: "2.3.3",
+    antenna_port: "2",
+    brand: "Impinj",
+    model: "Speedway",
+    location: "Warehouse B",
+    notes: "Antenna is mounted beside the door.",
+  }
+]
 
 // Adrian Will Provide Actual EPCs
 const epcs = [
@@ -51,62 +60,62 @@ const products = [];
 const productsInfo = [
   {
     name: "Iphone X",
-    sku: "1234987124076",
+    sku: uuidv4().slice(0,18),
     category: "Electronics"
   },
   {
     name: "Led TV",
-    sku: "890789707870",
+    sku: uuidv4().slice(0,18),
     category: "Electronics"
   },
   {
     name: "Modern Chair",
-    sku: "8305705723583",
+    sku: uuidv4().slice(0,18),
     category: "Furniture"
   },
   {
     name: "Cat Food",
-    sku: "2985723089752",
+    sku: uuidv4().slice(0,18),
     category: "Pets"
   },
   {
     name: "Washing Machine",
-    sku: "9872085762398765",
+    sku: uuidv4().slice(0,18),
     category: "Home"
   },
   {
     name: "Kennel",
-    sku: "3969283659825235",
+    sku: uuidv4().slice(0,18),
     category: "Pets"
   },
   {
     name: "Rustic Table",
-    sku: "9870983158296",
+    sku: uuidv4().slice(0,18),
     category: "Furniture"
   },
   {
     name: "Lego Duplo 200pzs Set",
-    sku: "08306876378652",
+    sku: uuidv4().slice(0,18),
     category: "Kids"
   },
   {
     name: "Square Pants",
-    sku: "0987892735086",
+    sku: uuidv4().slice(0,18),
     category: "Clothing"
   },
   {
     name: "Blender",
-    sku: "908770987245",
+    sku: uuidv4().slice(0,18),
     category: "Home"
   },
   {
     name: "Barbie",
-    sku: "870235086235872",
+    sku: uuidv4().slice(0,18),
     category: "Kids"
   },
   {
     name: "Leather Jacket",
-    sku: "87098752098751234",
+    sku: uuidv4().slice(0,18),
     category: "Clothing"
   }
 ]
@@ -141,8 +150,18 @@ epcs.forEach(epc => {
 
 // console.log(events);
 // console.log(epcs);
-const deleteProducts = () => {
-  console.log(productsURL);
+const deleteAll = () => {
+  axios.delete(eventsURL, {})
+    .then(response => response)
+    .catch(error => console.log(error))
+}
+
+const populateReaders = (readers) => {
+  readers.forEach(reader=>{
+    axios.post(readersURL, reader)
+      .then(response => response)
+      .catch(error => console.log(error))
+  })
 }
 
 const populateProducts = (products) => {
@@ -211,11 +230,16 @@ const inEntryPort = [];
 const inExitPort = [];
 
 // Delete Stored Events in the Server
-deleteEvents();
-// Delete Stored Products in the Server
-deleteProducts();
+// deleteEvents();
+
+// Delete Events Products and Readers
+deleteAll();
+
 // Populate Products
 populateProducts(products);
+
+// Populate Readers
+populateReaders(readers);
 
 logArrays(false);
 
