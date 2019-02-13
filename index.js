@@ -5,9 +5,9 @@ uuidv4(); // ⇨ '10ba038e-48da-487b-96e8-8d3b99b6d18a'
 
 const production = false;
 
-const eventsURL = "http://localhost:3001/epc-events" 
-const productsURL = "http://localhost:3001/api/products"
-const readersURL = "http://localhost:3001/api/readers"
+let eventsURL = "http://localhost:3001/epc-events" 
+let productsURL = "http://localhost:3001/api/products"
+let readersURL = "http://localhost:3001/api/readers"
 
 if (production) {
   eventsURL = "https://project3-assets-overlord.herokuapp.com/epc-events" 
@@ -15,14 +15,18 @@ if (production) {
   readersURL = "https://project3-assets-overlord.herokuapp.com/api/readers"
 }
 
+// Use Real and Simulated Tags
+const useRealEPCs = false;
+const useSimulatedEPCs = true;
+
 // Number of Tags to be Simulated
-const amountOfTags = 40;
+const amountOfTags = 60;
 
 // Time Interval of Moving Products in milliseconds
 const timeInterval = 5 * 1000;
 
 // The Speed of Moving elements: higher value Slow, lower value Fast
-const speedFactor = 8;
+const speedFactor = 2;
 
 readers = [
   {
@@ -49,11 +53,60 @@ readers = [
   }
 ]
 
+// EPC Array Definition
+let epcs = [];
+
 // Adrian Will Provide Actual EPCs
-const epcs = [
-  "AAAA",
-  "BBBB"
-];
+if(useRealEPCs){
+  epcs = [
+    "E2801160600002073A3024A1",
+    "E2801160600002073A3024D1",
+    "E2801160600002073A3024C1",
+    "E2801160600002073A3024B1",
+    "E2801160600002073A3024E1",
+    "E2801160600002073A3058F0",
+    "E2801160600002073A308A30",
+    "E2801160600002073A308A20",
+    "E2801160600002073A308A40",
+    "E2801160600002073A308A70",
+    "E2801160600002073A308A60",
+    "E2801160600002073A308A90",
+    "E2801160600002073A308A50",
+    "E2801160600002073A308A10",
+    "E2801160600002073A308AA0",
+    "E2801160600002073A308AC1",
+    "E2801160600002073A308AB0",
+    "E2801160600002073A308AE1",
+    "E2801160600002073A308AA1",
+    "E2801160600002073A308A91",
+    "E2801160600002073A308AB1",
+    "E2801160600002073A308A81",
+    "E2801160600002073A308AD0",
+    "E2801160600002073A308AF1",
+    "E2801160600002073A308A71",
+    "E2801160600002073A308A61",
+    "E2801160600002073A308A41",
+    "E2801160600002073A3058E1",
+    "E2801160600002073A308A21",
+    "E2801160600002073A3058F1",
+    "E2801160600002073A308A11",
+    "E2801160600002073A3058C1",
+    "E2801160600002073A308A31",
+    "E2801160600002073A308A51",
+    "E2801160600002073A308A01",
+    "E2801160600002073A305811",
+    "E2801160600002073A305821",
+    "E2801160600002073A305801",
+    "E2801160600002073A305831",
+    "E2801160600002073A3024F1",
+    "E2801160600002073A305841",
+    "E2801160600002073A305891",
+    "E2801160600002073A3058B1",
+    "E2801160600002073A3058A1",
+    "E2801160600002073A3058D1"
+  ];
+}
+
 const events = [];
 const products = [];
 
@@ -120,21 +173,22 @@ const productsInfo = [
   }
 ]
 
-
-for (let i = 0; i < amountOfTags; i+=1){
-  let event;
-  let epc;
-
-  epc = uuidv4().replace(/-/g, "").toUpperCase().slice(-24);
-
-  event = {
-    "epc": epc,
-    "antenna_port": null,
-    "event_time": new Date()
+if(useSimulatedEPCs){
+  for (let i = 0; i < amountOfTags; i+=1){
+    let event;
+    let epc;
+  
+    epc = uuidv4().replace(/-/g, "").toUpperCase().slice(-24);
+  
+    event = {
+      "epc": epc,
+      "antenna_port": null,
+      "event_time": new Date()
+    }
+  
+    events.push(event)
+    epcs.push(epc)
   }
-
-  events.push(event)
-  epcs.push(epc)
 }
 
 // Assign A Product to Each EPC
@@ -147,9 +201,9 @@ epcs.forEach(epc => {
   products.push(product);
 });
 
+console.log(epcs)
+console.log(products);
 
-// console.log(events);
-// console.log(epcs);
 const deleteAll = () => {
   axios.delete(eventsURL, {})
     .then(response => response)
