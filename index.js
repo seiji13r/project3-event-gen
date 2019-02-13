@@ -1,7 +1,6 @@
 const uuidv4 = require('uuid/v4');
 const axios = require("axios")
-uuidv4(); // ⇨ '10ba038e-48da-487b-96e8-8d3b99b6d18a'
-// E2801160600002073A3024E1
+uuidv4();
 
 const production = false;
 
@@ -201,8 +200,9 @@ epcs.forEach(epc => {
   products.push(product);
 });
 
-console.log(epcs)
-console.log(products);
+// Check used EPCs and Generated Products
+// console.log(epcs)
+// console.log(products);
 
 const deleteAll = () => {
   axios.delete(eventsURL, {})
