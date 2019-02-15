@@ -287,7 +287,8 @@ const inExitPort = [];
 // deleteEvents();
 
 // Delete Events Products and Readers
-deleteAll();
+// Use `node deleteAll.js` instead
+// deleteAll();
 
 // Populate Products
 populateProducts(products);
